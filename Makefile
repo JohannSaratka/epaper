@@ -59,8 +59,13 @@ OBJECTS := $(SOURCES:$(SRC_DIR)/%=$(OBJ_DIR)/%.o)
 
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
 #######################################################################################
-CFLAGS   = -mmcu=$(MCU) -g -gdwarf-3 -O1 -Wall -Wextra -Werror
-CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib -g -gdwarf-3 -O1 -Wall -Wextra -Werror -std=c++11
+ifeq ($(PROFILE),release)
+OPT=-O1
+else
+OPT=-g -gdwarf-3 -O0
+endif
+CFLAGS   = -mmcu=$(MCU) $(OPT) -Wall -Wextra -Werror -std=c11
+CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib -g $(OPT) -Wall -Wextra -Werror -std=c++11
 CPPFLAGS = $(INCLUDES) #-MMD -MP 
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(BIN_DIR)/$(TARGET).map -L $(GCC_MSP_INC_DIR)
@@ -91,10 +96,6 @@ $(BIN_DIR)/$(TARGET).elf: $(OBJECTS)
 	$(SIZE) $@
 	echo
 	
-## search path for *.cpp files
-#vpath %.cpp $(MODULE_OBJ_PATH)
-#vpath %.c $(MODULE_OBJ_PATH)
-
 # c source
 $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
