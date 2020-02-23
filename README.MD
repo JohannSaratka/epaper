@@ -23,6 +23,6 @@ opt gdb_loop true
 gdb
 
 ## Flash elf file
-prog ~/Workspaces/MSP430LaunchPad/epaper/build/epaper.elf
+prog ~/Workspaces/MSP430LaunchPad/epaper/build/bin/app.elf
 run
 

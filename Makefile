@@ -23,6 +23,8 @@ RANLIB   = $(TOOL_PREFIX)ranlib
 STRIP    = $(TOOL_PREFIX)strip
 SIZE     = $(TOOL_PREFIX)size
 READELF  = $(TOOL_PREFIX)readelf
+GDB      = $(TOOL_PREFIX)gdb
+MSPDEBUG = mspdebug
 MAKETXT  = srec_cat
 CP       = cp -p
 RM       = rm -r -f
@@ -33,46 +35,55 @@ GCC_DIR       = $(HOME)/Programme/tools/msp430-gcc
 GCC_MSP_INC_DIR = $(GCC_DIR)/include
 GCC_INC_DIR = $(GCC_DIR)/msp430-elf/include
 
-TARGETS = $(wildcard src/*)
-MODULES = $(subst src/,,$(TARGETS))
-BUILD_DIR = $(subst src/,build/,$(TARGETS))
-
-# List all the source files here
-# eg if you have a source file foo.c then list it here
-SOURCES = $(shell find $(TARGETS) -name *.cpp -or -name *.c -or -name *.s)
-
-# Include are located in the Include directory
-INCLUDES = -Iinclude -I$(GCC_MSP_INC_DIR)
-
+TARGET = app
 # OUTDIR: directory to use for output
 OUTDIR = build
 
+SRC_DIR = src
+BIN_DIR = $(OUTDIR)/bin
+OBJ_DIR = $(OUTDIR)/obj
+
+# List all the source files here
+# eg if you have a source file foo.c then list it here
+SOURCES := $(shell find $(SRC_DIR) -name *.cpp -or -name *.c -or -name *.s)
+
+MODULES := $(shell find $(SRC_DIR) -type d -print)
+MODULE_OBJ_PATH := $(MODULES:$(SRC_DIR)%=$(OBJ_DIR)%)
+
+
+# Include are located in the Include directory
+INCLUDES = -I$(GCC_MSP_INC_DIR) $(MODULES:%=-I%)
+
 # list of object files, placed in the build directory regardless of source path
-OBJECTS = $(SOURCES:src/%=$(OUTDIR)/%.o)
+OBJECTS := $(SOURCES:$(SRC_DIR)/%=$(OBJ_DIR)/%.o)
 
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
 #######################################################################################
-CFLAGS   = -mmcu=$(MCU) -g -gdwarf-3 -O1 -Wall -Wunused
-CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib -g -gdwarf-3 -O1 -Wall -Wunused -std=c++11
-CPPFLAGS = $(INCLUDES) -MMD -MP 
+CFLAGS   = -mmcu=$(MCU) -g -gdwarf-3 -O1 -Wall -Wextra -Werror
+CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib -g -gdwarf-3 -O1 -Wall -Wextra -Werror -std=c++11
+CPPFLAGS = $(INCLUDES) #-MMD -MP 
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
-LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(MODULES).map -L $(GCC_MSP_INC_DIR)
+LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(BIN_DIR)/$(TARGET).map -L $(GCC_MSP_INC_DIR)
 
 # default: build hex file and TI TXT file
 .PHONY: all
-all: $(BUILD_DIR) $(OUTDIR)/$(MODULES).hex #$(OUTDIR)/$(TARGET).txt
+all: setup $(BIN_DIR)/$(TARGET).hex #$(OUTDIR)/$(TARGET).txt
 
+# create the output directory
+setup:
+	$(MKDIR) $(BIN_DIR) $(OBJ_DIR) $(MODULE_OBJ_PATH)
+	
 # TI TXT file
 #$(OUTDIR)/%.txt: $(OUTDIR)/%.hex
 #	$(MAKETXT) -O $@ -TITXT $< -I
 #	$(UNIX2DOS) $(OUTDIR)/$(TARGET).txt
 
 # intel hex file
-$(OUTDIR)/$(MODULES).hex: $(OUTDIR)/$(MODULES).elf
+$(BIN_DIR)/$(TARGET).hex: $(BIN_DIR)/$(TARGET).elf
 	$(OBJCOPY) -O ihex $< $@
 
 # elf file
-$(OUTDIR)/$(MODULES).elf: $(OBJECTS)
+$(BIN_DIR)/$(TARGET).elf: $(OBJECTS)
 	echo "Linking $@"
 	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
 	echo
@@ -80,32 +91,25 @@ $(OUTDIR)/$(MODULES).elf: $(OBJECTS)
 	$(SIZE) $@
 	echo
 	
-# search path for *.cpp files
-vpath %.cpp $(TARGETS)
-vpath %.c $(TARGETS)
+## search path for *.cpp files
+#vpath %.cpp $(MODULE_OBJ_PATH)
+#vpath %.c $(MODULE_OBJ_PATH)
 
-define make-goal
+# c source
+$(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+	
+# c++ source
+$(OBJ_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $$< -o $$@
+
+
 # assembly
-$(1)/%.s.o: %.s
+$(OBJ_DIR)/%.s.o: $(SRC_DIR)/%.s
 	$(AS) $(ASFLAGS) -c $$< -o $$@
 	
-# c source
-$(1)/%.c.o: %.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $$< -o $$@
-	
-
-# c++ source
-$(1)/%.cpp.o: %.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $$< -o $$@
-endef
-	
-# create the output directory
-$(BUILD_DIR):
-	$(MKDIR) $@
-
 # remove build artifacts and executables
 .PHONY: clean
 clean:
 	$(RM) $(OUTDIR)
 
-$(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
