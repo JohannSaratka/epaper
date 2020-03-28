@@ -31,7 +31,7 @@ RM       = rm -r -f
 MV       = mv
 MKDIR    = mkdir -p
 
-GCC_DIR       = $(HOME)/Programme/tools/msp430-gcc
+GCC_DIR       = $(HOME)/Software/toolchain/msp430-gcc
 GCC_MSP_INC_DIR = $(GCC_DIR)/include
 GCC_INC_DIR = $(GCC_DIR)/msp430-elf/include
 
