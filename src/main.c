@@ -12,6 +12,7 @@
 #include "hal.h"
 #include "epaper.h"
 #include "paint.h"
+#include "tile.h"
 #include "image_data.h"
 
 #define LED1 BIT0 // LED1 P1.0 Digital Out
@@ -36,26 +37,26 @@ int main(void)
 	epd_init(true);
 	epd_clear();
 
-#if 0   //show image for array
-	//Create a new image cache
-	/* you have to set a big enough heap size */
-	uint8_t *BlackImage = (uint8_t *)malloc(DISPLAY_NUM_BYTES);
-	if(BlackImage == NULL)
+	paint_init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+	tile_clear(WHITE);
+	uint16_t i;
+	for(i = 0;i < 8; i++)
 	{
-		return -1;
+		tile_setPixel(0, i, BLACK);
+		tile_setPixel(i, 0, BLACK);
+		tile_setPixel(i, i, BLACK);
 	}
-	Paint_NewImage(BlackImage, DISPLAY_WIDTH, DISPLAY_HEIGHT, 270, WHITE);
+	for(i = 0;i < 200; i += 16)
+	{
+		paint_displayTile(0,i);
+		paint_displayTile(i,0);
+		paint_displayTile(i,i);
+	}
+	epd_turnOnDisplay();
+	bcm_delay(3000);
 
-
-	Paint_SelectImage(BlackImage);
-	Paint_Clear(WHITE);
-	Paint_DrawBitMap(gImage_1in54);
-
-	epd_display(BlackImage);
-	bcm_delay(2000);
-#endif
-	epd_display((uint8_t *)gImage_1in54);
-	bcm_delay(2000);
+//	epd_display((uint8_t *)gImage_1in54);
+//	bcm_delay(2000);
 #if 0   // Drawing on the image
 	//1.Select Image
 	Paint_SelectImage(BlackImage);
@@ -121,16 +122,14 @@ int main(void)
 	}
 
 #endif
-
+#if 0
 	epd_init(true);
 	epd_clear();
 
 	epd_sleep();
+#endif
 //	free(BlackImage);
 //	BlackImage = NULL;
-
-	// close 5V
-	epd_exit();
 
 	while(1)
 	{
