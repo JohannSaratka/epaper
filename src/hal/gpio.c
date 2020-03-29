@@ -13,7 +13,40 @@ port_regs *const PORT2 = (port_regs *) &P2IN;
 
 void gpio_setDirectionOutput(port_regs *port, uint8_t pin)
 {
+	gpio_setPeripheralFunction(port, pin, GPIO_MODULE_FUNCTION_IO);
 	port->PxDIR |= pin;
+}
+
+void gpio_setDirectionInput(port_regs *port, uint8_t pin)
+{
+	gpio_setPeripheralFunction(port, pin, GPIO_MODULE_FUNCTION_IO);
+	port->PxDIR &= ~pin;
+}
+
+void gpio_setPeripheralFunction(port_regs *port, uint8_t pin, enum gpio_module_function mode)
+{
+	switch(mode)
+	{
+		case GPIO_MODULE_FUNCTION_IO:
+			port->PxSEL &= ~pin;
+			port->PxSEL2 &= ~pin;
+			break;
+		case GPIO_MODULE_FUNCTION_PRIMARY:
+			port->PxSEL |= pin;
+			port->PxSEL2 &= ~pin;
+			break;
+		case GPIO_MODULE_FUNCTION_SPECIAL:
+			port->PxSEL &= ~pin;
+			port->PxSEL2 |= pin;
+			break;
+		case GPIO_MODULE_FUNCTION_SECONDARY:
+			port->PxSEL |= pin;
+			port->PxSEL2 |= pin;
+			break;
+		default:
+			// this should not be possible
+			break;
+	}
 }
 
 void gpio_setOutputHigh(port_regs *port, uint8_t pin)
