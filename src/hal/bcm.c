@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <msp430.h>
 
-#define CYCLES_PER_MS 2047 // TODO: this value is not accurate and depends on system clock
+#define CYCLES_PER_MS 609 // measured for 8MHz system clock
 
 void bcm_setDCOFrequency()
 {
