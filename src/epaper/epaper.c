@@ -12,18 +12,27 @@
 #include "hal.h"
 #include "epaper.h"
 
-#define DIN_PIN BIT7 // DIN P1.7 SPI MOSI
-#define CLK_PIN BIT5 // CLK	| P1.5 SPI SCK
-
 #define DC_PIN BIT5 // DC P2.5 Digital Out
 #define RST_PIN BIT4 // RST P2.4 Digital Out
 #define BUSY_PIN BIT3 // BUSY P2.3 Digital In
 
-#define DISPLAY_WIDTH 200
-#define DISPLAY_HEIGHT 200
+#define DISPLAY_WIDTH (200U)
+#define DISPLAY_HEIGHT (200U)
+
+#if (DISPLAY_WIDTH % 8U == 0)
+#define DISPLAY_NUM_BYTES ((DISPLAY_WIDTH / 8U ) * DISPLAY_HEIGHT)
+#else
+#define DISPLAY_NUM_BYTES ((DISPLAY_WIDTH / 8U + 1U) * DISPLAY_HEIGHT)
+#endif
 
 static void sendCommand(uint8_t val);
 static void sendData(uint8_t val);
+static void epd_reset(void);
+static void epd_setWindow(uint16_t Xstart, uint16_t Ystart,
+		uint16_t Xend, uint16_t Yend);
+static void epd_setCursor(uint16_t Xstart, uint16_t Ystart);
+static void epd_turnOnDisplay(void);
+
 
 static const uint8_t lut_full_update[] = {
     0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22,
@@ -50,8 +59,10 @@ void epd_init(bool useFullUpdate)
 	{
 		lut = lut_partial_update;
 	}
+
 	// init hardware
-	gpio_setDirectionOutput(PORT2,DC_PIN+RST_PIN);
+	gpio_setDirectionOutput(PORT2, DC_PIN + RST_PIN);
+	gpio_setDirectionInput(PORT2, BUSY_PIN);
 	// Reset the EPD driver IC
 	epd_reset();
 
@@ -89,7 +100,7 @@ void epd_init(bool useFullUpdate)
 	}
 }
 
-void epd_reset(void)
+static void epd_reset(void)
 {
 	bcm_delay(200);
 	gpio_setOutputLow(PORT2, RST_PIN);
@@ -98,7 +109,13 @@ void epd_reset(void)
 	bcm_delay(200);
 }
 
-void epd_setWindow(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend)
+void epd_exit(void)
+{
+	gpio_setOutputLow(PORT2, DC_PIN + RST_PIN);
+}
+
+static void epd_setWindow(uint16_t Xstart, uint16_t Ystart,
+		uint16_t Xend, uint16_t Yend)
 {
     sendCommand(0x44); // SET_RAM_X_ADDRESS_START_END_POSITION
     sendData((Xstart >> 3) & 0xFF);
@@ -111,7 +128,7 @@ void epd_setWindow(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yen
     sendData((Yend >> 8) & 0xFF);
 }
 
-void epd_setCursor(uint16_t Xstart, uint16_t Ystart)
+static void epd_setCursor(uint16_t Xstart, uint16_t Ystart)
 {
     sendCommand(0x4E); // SET_RAM_X_ADDRESS_COUNTER
     sendData((Xstart >> 3) & 0xFF);
@@ -121,7 +138,7 @@ void epd_setCursor(uint16_t Xstart, uint16_t Ystart)
     sendData((Ystart >> 8) & 0xFF);
 }
 
-void epd_turnOnDisplay(void)
+static void epd_turnOnDisplay(void)
 {
     sendCommand(0x22); // DISPLAY_UPDATE_CONTROL_2
     sendData(0xC4);
@@ -135,20 +152,33 @@ void epd_turnOnDisplay(void)
 
 void epd_clear(void)
 {
-    uint16_t Width;
-    uint16_t Height;
-    Width = (DISPLAY_WIDTH % 8 == 0)? (DISPLAY_WIDTH / 8 ): (DISPLAY_WIDTH / 8 + 1);
-    Height = DISPLAY_HEIGHT;
-
-    epd_setWindow(0, 0, DISPLAY_WIDTH - 1, DISPLAY_HEIGHT - 1);
+    epd_setWindow(0, 0, DISPLAY_WIDTH-1, DISPLAY_HEIGHT-1);
 
 	epd_setCursor(0, 0);
 	sendCommand(0x24);
-	for (uint16_t i = 0; i < Width * Height; i++) {
+	for (uint16_t i = 0; i < DISPLAY_NUM_BYTES; i++) {
 		sendData(0XFF);
 	}
 
     epd_turnOnDisplay();
+}
+
+void epd_display(uint8_t *image)
+{
+    epd_setWindow(0, 0, DISPLAY_WIDTH-1, DISPLAY_HEIGHT-1);
+
+    epd_setCursor(0, 0);
+	sendCommand(0x24);
+	for (uint16_t i = 0; i < DISPLAY_NUM_BYTES; i++) {
+		sendData(image[i]);
+	}
+    epd_turnOnDisplay();
+}
+
+void epd_sleep(void)
+{
+    sendCommand(0x10);
+    sendData(0x01);
 }
 
 static void sendCommand(uint8_t val)

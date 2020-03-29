@@ -8,6 +8,8 @@
 #include <msp430.h>
 #include "gpio.h"
 
+#define DIN_PIN BIT7 // DIN P1.7 SPI MOSI
+#define CLK_PIN BIT5 // CLK	| P1.5 SPI SCK
 #define CS_PIN BIT0 // CS P2.0 SPI CS
 
 void usci_initSPI()
@@ -23,6 +25,7 @@ void usci_initSPI()
 	UCA0MCTL = 0; // No modulation
 	UCB0CTL1 &= ~UCSWRST;
 
+	gpio_setPeripheralFunction(PORT1, DIN_PIN + CLK_PIN, GPIO_MODULE_FUNCTION_SECONDARY);
 	gpio_setDirectionOutput(PORT2,CS_PIN);
 	gpio_setOutputHigh(PORT2, CS_PIN);
 }
