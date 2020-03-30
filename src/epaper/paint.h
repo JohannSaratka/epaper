@@ -8,8 +8,6 @@
 #ifndef SRC_EPAPER_PAINT_H_
 #define SRC_EPAPER_PAINT_H_
 
-#include "fonts.h"
-
 /**
  * Image attributes
 **/
