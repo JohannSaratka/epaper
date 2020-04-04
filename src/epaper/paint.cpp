@@ -11,35 +11,33 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "paint.h"
 #include "epaper.h"
-#include "tile.h"
+#include "paint.h"
 
-PAINT Paint;
+#include "tile.h"
 
 /** Init paint object
  *
  * \param width The width of the picture
  * \param height The height of the picture
  */
-int16_t paint_init(uint16_t Width, uint16_t Height)
+void Paint::init(EPD *pEpd, uint16_t Width, uint16_t Height)
 {
-	Paint.tileBuffer = getTileBufferAddr();
+	tileBuffer = getTileBufferAddr();
+	
+	WidthMemory = Width;
+	HeightMemory = Height;
 
-	Paint.WidthMemory = Width;
-	Paint.HeightMemory = Height;
+	WidthByte = (Width % 8 == 0) ? (Width / 8) : (Width / 8 + 1);
+	HeightByte = Height;
 
-	Paint.WidthByte = (Width % 8 == 0) ? (Width / 8) : (Width / 8 + 1);
-	Paint.HeightByte = Height;
-
-	return 0;
+	epd = pEpd;
 }
 
-void paint_displayTile(uint16_t x, uint16_t y)
+void Paint::displayTile(uint16_t x, uint16_t y)
 {
-	epd_displayImage(Paint.tileBuffer, x, y, TILE_WIDTH, TILE_HEIGHT);
+	epd->displayImage(tileBuffer, x, y, TILE_WIDTH, TILE_HEIGHT);
 }
-
 /* TODO PAINT:
  * properties: rotate, mirror, scale, color
 

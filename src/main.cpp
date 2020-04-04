@@ -24,7 +24,8 @@ void portInit()
 	gpio_setDirectionOutput(PORT1, LED1);
 	gpio_setOutputLow(PORT1, LED1);
 }
-
+Paint paint;
+EPD epd;
 
 int main(void)
 {
@@ -34,11 +35,15 @@ int main(void)
 	portInit();
 	usci_initSPI();
 
-	epd_init(true);
-	epd_clear();
 
-	paint_init(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+	epd.init(true);
+	epd.clear();
+	epd.clear();
+
+
+	paint.init(&epd, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 	tile_clear(WHITE);
+
 	uint16_t i;
 	for(i = 0;i < 8; i++)
 	{
@@ -48,11 +53,11 @@ int main(void)
 	}
 	for(i = 0;i < 200; i += 16)
 	{
-		paint_displayTile(0,i);
-		paint_displayTile(i,0);
-		paint_displayTile(i,i);
+		paint.displayTile(0,i);
+		paint.displayTile(i,0);
+		paint.displayTile(i,i);
 	}
-	epd_turnOnDisplay();
+	epd.turnOnDisplay();
 	bcm_delay(3000);
 
 //	epd_display((uint8_t *)gImage_1in54);

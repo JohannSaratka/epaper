@@ -26,3 +26,17 @@ gdb
 prog ~/Workspaces/MSP430LaunchPad/epaper/build/bin/app.elf
 run
 
+## C Code Size Reference 
+Profile: Debug
+
+>>>> Size of Firmware <<<<
+msp430-elf-size build/bin/app.elf
+   text	   data	    bss	    dec	    hex	filename
+   2800	      4	     26	   2830	    b0e	build/bin/app.elf
+   
+Profile: Release
+
+>>>> Size of Firmware <<<<
+msp430-elf-size build/bin/app.elf
+   text	   data	    bss	    dec	    hex	filename
+   1790	      4	     26	   1820	    71c	build/bin/app.elf

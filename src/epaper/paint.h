@@ -9,20 +9,6 @@
 #define SRC_EPAPER_PAINT_H_
 
 /**
- * Image attributes
-**/
-typedef struct {
-    uint8_t *tileBuffer;
-    uint16_t Width;
-    uint16_t Height;
-    uint16_t WidthMemory;
-    uint16_t HeightMemory;
-    uint16_t WidthByte;
-    uint16_t HeightByte;
-} PAINT;
-extern PAINT Paint;
-
-/**
  * image color
 **/
 #define WHITE          0xFF
@@ -32,8 +18,26 @@ extern PAINT Paint;
 #define FONT_FOREGROUND     BLACK
 #define FONT_BACKGROUND     WHITE
 
-int16_t paint_init(uint16_t Width, uint16_t Height);
-void paint_displayTile(uint16_t x, uint16_t y);
+#ifdef __cplusplus
 
+/**
+ * Image attributes
+**/
+class Paint
+{
+public:
+    EPD *epd;
+    uint8_t *tileBuffer;
+    uint16_t Width;
+    uint16_t Height;
+    uint16_t WidthMemory;
+    uint16_t HeightMemory;
+    uint16_t WidthByte;
+    uint16_t HeightByte;
+    void init(EPD *epd, uint16_t Width, uint16_t Height);
+    void displayTile(uint16_t x, uint16_t y);
+};
+
+#endif
 
 #endif /* SRC_EPAPER_PAINT_H_ */

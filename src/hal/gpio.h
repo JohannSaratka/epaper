@@ -8,6 +8,10 @@
 #ifndef SRC_HAL_GPIO_H_
 #define SRC_HAL_GPIO_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct
 {
 	uint8_t volatile PxIN;
@@ -42,5 +46,9 @@ void gpio_setOutputLow(port_regs *port, uint8_t pin);
 void gpio_toggleOutput(port_regs *port, uint8_t pin);
 
 uint8_t gpio_getInputPin(port_regs *port, uint8_t pin);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SRC_HAL_GPIO_H_ */

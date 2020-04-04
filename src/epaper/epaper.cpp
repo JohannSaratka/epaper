@@ -5,9 +5,7 @@
  *      Author: johann
  */
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
+#include <cstdint>
 #include <msp430.h>
 
 #include "hal.h"
@@ -23,14 +21,6 @@
 #define DISPLAY_NUM_BYTES ((DISPLAY_WIDTH / 8U + 1U) * DISPLAY_HEIGHT)
 #endif
 
-static void sendCommand(uint8_t val);
-static void sendData(uint8_t val);
-static void epd_reset(void);
-static void epd_setWindow(uint16_t Xstart, uint16_t Ystart,
-		uint16_t Xend, uint16_t Yend);
-static void epd_setCursor(uint16_t Xstart, uint16_t Ystart);
-
-
 static const uint8_t lut_full_update[] = {
     0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22,
     0x66, 0x69, 0x69, 0x59, 0x58, 0x99, 0x99, 0x88,
@@ -45,7 +35,17 @@ static const uint8_t lut_partial_update[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-void epd_init(bool useFullUpdate)
+EPD::~EPD()
+{
+
+};
+
+EPD::EPD()
+{
+
+};
+
+void EPD::init(bool useFullUpdate)
 {
 	const uint8_t * lut;
 	if(useFullUpdate)
@@ -61,7 +61,7 @@ void epd_init(bool useFullUpdate)
 	gpio_setDirectionOutput(PORT2, DC_PIN + RST_PIN);
 	gpio_setDirectionInput(PORT2, BUSY_PIN);
 	// Reset the EPD driver IC
-	epd_reset();
+	reset();
 
 	// Driver Output Control
 	sendCommand(0x01);
@@ -99,9 +99,9 @@ void epd_init(bool useFullUpdate)
 
 /** Module reset.
  *
- * Often used to awaken the module in deep sleep, \see epd_sleep().
+ * Often used to awaken the module in deep sleep, \see EPD::sleep().
  */
-static void epd_reset(void)
+void EPD::reset()
 {
 	bcm_delay(200);
 	gpio_setOutputLow(PORT2, RST_PIN);
@@ -113,7 +113,7 @@ static void epd_reset(void)
 /** Specify the memory area for data R/W
  * SetMemoryArea
  */
-static void epd_setWindow(uint16_t Xstart, uint16_t Ystart,
+void EPD::setWindow(uint16_t Xstart, uint16_t Ystart,
 		uint16_t Xend, uint16_t Yend)
 {
     sendCommand(0x44); // SET_RAM_X_ADDRESS_START_END_POSITION
@@ -129,7 +129,7 @@ static void epd_setWindow(uint16_t Xstart, uint16_t Ystart,
 /** Specify the start point for data R/W
  *  SetMemoryPointer
  */
-static void epd_setCursor(uint16_t Xstart, uint16_t Ystart)
+void EPD::setCursor(uint16_t Xstart, uint16_t Ystart)
 {
     sendCommand(0x4E); // SET_RAM_X_ADDRESS_COUNTER
     sendData((Xstart >> 3) & 0xFF);
@@ -142,9 +142,9 @@ static void epd_setCursor(uint16_t Xstart, uint16_t Ystart)
  *
  * There are two memory areas embedded in the e-paper display
  * This function will switch the active area while
- * epd_display and epd_clear always operate on the other memory area.
+ * EPD::display and EPD::clear always operate on the other memory area.
 */
-void epd_turnOnDisplay(void)
+void EPD::turnOnDisplay()
 {
     sendCommand(0x22); // DISPLAY_UPDATE_CONTROL_2
     sendData(0xC4);
@@ -160,17 +160,17 @@ void epd_turnOnDisplay(void)
  *
  * This will update the display.
  */
-void epd_clear(void)
+void EPD::clear()
 {
-    epd_setWindow(0, 0, DISPLAY_WIDTH-1, DISPLAY_HEIGHT-1);
+    EPD::setWindow(0, 0, DISPLAY_WIDTH-1, DISPLAY_HEIGHT-1);
 
-	epd_setCursor(0, 0);
+	EPD::setCursor(0, 0);
 	sendCommand(0x24);
 	for (uint16_t i = 0; i < DISPLAY_NUM_BYTES; i++) {
 		sendData(0XFF);
 	}
 
-    epd_turnOnDisplay();
+    EPD::turnOnDisplay();
 }
 
 /** Put an image buffer to the frame memory.
@@ -178,20 +178,20 @@ void epd_clear(void)
  * This will update the display with data from image pointer.
  * It will read DISPLAY_WIDTH * DISPLAY_HEIGHT bytes of data.
  */
-void epd_display(uint8_t *image)
+void EPD::display(uint8_t *image)
 {
-	if(image == NULL)
+	if(image == nullptr)
 	{
 		return;
 	}
-    epd_setWindow(0, 0, DISPLAY_WIDTH-1, DISPLAY_HEIGHT-1);
+    EPD::setWindow(0, 0, DISPLAY_WIDTH-1, DISPLAY_HEIGHT-1);
 
-    epd_setCursor(0, 0);
+    EPD::setCursor(0, 0);
 	sendCommand(0x24);
 	for (uint16_t i = 0; i < DISPLAY_NUM_BYTES; i++) {
 		sendData(image[i]);
 	}
-    epd_turnOnDisplay();
+    EPD::turnOnDisplay();
 }
 
 /** Put an arbitrary size image buffer to the frame memory.
@@ -200,13 +200,13 @@ void epd_display(uint8_t *image)
  * It will read image_width * image_height bytes of data and
  * display it at x/y coordinates.
  */
-void epd_displayImage(uint8_t *image_buffer, uint16_t x, uint16_t y,
+void EPD::displayImage(uint8_t *image_buffer, uint16_t x, uint16_t y,
 	    uint16_t image_width, uint16_t image_height)
 {
     int x_end;
     int y_end;
 
-    if (image_buffer == NULL)
+    if (image_buffer == nullptr)
     {
         return;
     }
@@ -230,8 +230,8 @@ void epd_displayImage(uint8_t *image_buffer, uint16_t x, uint16_t y,
     {
         y_end = y + image_height - 1;
     }
-    epd_setWindow(x, y, x_end, y_end);
-    epd_setCursor(x, y);
+    EPD::setWindow(x, y, x_end, y_end);
+    EPD::setCursor(x, y);
     sendCommand(0x24);
     /* send the tile data */
     for (uint16_t j = 0; j < y_end - y + 1; j++)
@@ -247,10 +247,10 @@ void epd_displayImage(uint8_t *image_buffer, uint16_t x, uint16_t y,
  *
  * After this command is transmitted, the chip would enter the
  * deep-sleep mode to save power. The deep sleep mode would
- * return to standby by hardware reset. You can use epd_init()
+ * return to standby by hardware reset. You can use EPD::init()
  * to awaken
  */
-void epd_sleep(void)
+void EPD::sleep()
 {
     sendCommand(0x10);
     sendData(0x01);
@@ -261,7 +261,7 @@ void epd_sleep(void)
 /**
  * Basic function for sending commands
  */
-static void sendCommand(uint8_t val)
+void EPD::sendCommand(uint8_t val)
 {
 	gpio_setOutputLow(PORT2, DC_PIN);
 	usci_sendSPI(val);
@@ -270,7 +270,7 @@ static void sendCommand(uint8_t val)
 /**
  *  Basic function for sending data
  */
-static void sendData(uint8_t val)
+void EPD::sendData(uint8_t val)
 {
 	gpio_setOutputHigh(PORT2, DC_PIN);
 	usci_sendSPI(val);

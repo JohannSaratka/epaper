@@ -102,12 +102,12 @@ $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c
 	
 # c++ source
 $(OBJ_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $$< -o $$@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 
 # assembly
 $(OBJ_DIR)/%.s.o: $(SRC_DIR)/%.s
-	$(AS) $(ASFLAGS) -c $$< -o $$@
+	$(AS) $(ASFLAGS) -c $< -o $@
 	
 # remove build artifacts and executables
 .PHONY: clean
