@@ -62,10 +62,10 @@ OBJECTS := $(SOURCES:$(SRC_DIR)/%=$(OBJ_DIR)/%.o)
 ifeq ($(PROFILE),release)
 OPT=-O1
 else
-OPT=-g -gdwarf-3 -O0
+OPT=-g3 -gdwarf-2 -O0
 endif
 CFLAGS   = -mmcu=$(MCU) $(OPT) -Wall -Wextra -Werror -std=c11
-CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib -g $(OPT) -Wall -Wextra -Werror -std=c++11
+CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib $(OPT) -Wall -Wextra -Werror -std=c++11
 CPPFLAGS = $(INCLUDES) #-MMD -MP 
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(BIN_DIR)/$(TARGET).map -L $(GCC_MSP_INC_DIR)
