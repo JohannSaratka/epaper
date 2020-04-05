@@ -18,8 +18,8 @@ void bcm_setDCOFrequency()
 // TODO move to tools folder
 void bcm_delay(uint16_t timeout_ms)
 {
-	uint16_t i;
-	uint16_t j;
+	volatile uint16_t i;
+	volatile uint16_t j;
 	for(i = 0 ;i < timeout_ms; i++)
 	{
 		j = CYCLES_PER_MS;
