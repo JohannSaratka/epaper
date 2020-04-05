@@ -1,4 +1,5 @@
 
+
 # Driver for waveshare e-Paper Module
 
 https://www.waveshare.com/wiki/1.54inch_e-Paper_Module
@@ -26,17 +27,11 @@ gdb
 prog ~/Workspaces/MSP430LaunchPad/epaper/build/bin/app.elf
 run
 
-## C Code Size Reference 
-Profile: Debug
-
->>>> Size of Firmware <<<<
-msp430-elf-size build/bin/app.elf
-   text	   data	    bss	    dec	    hex	filename
-   2800	      4	     26	   2830	    b0e	build/bin/app.elf
+## Code Size 
    
-Profile: Release
+|text | data | bss | dec | hex | languague  | optimization | 
+|--|--|--|--|--|--|--|
+|2800 | 4 | 26 | 2830 | b0e | C | -O0 | 
+|1790 | 4 | 26 | 1820 | 71c | C | -O0 | 
+|2442 | 144 | 12 | 2598 | a26| C++ V0 | -O1 |
 
->>>> Size of Firmware <<<<
-msp430-elf-size build/bin/app.elf
-   text	   data	    bss	    dec	    hex	filename
-   1790	      4	     26	   1820	    71c	build/bin/app.elf

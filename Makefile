@@ -89,12 +89,14 @@ $(BIN_DIR)/$(TARGET).hex: $(BIN_DIR)/$(TARGET).elf
 
 # elf file
 $(BIN_DIR)/$(TARGET).elf: $(OBJECTS)
-	echo "Linking $@"
+	@echo "Linking $@"
 	$(CC) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
-	echo
-	echo ">>>> Size of Firmware <<<<"
-	$(SIZE) $@
-	echo
+	@echo
+	@echo ">>>> Size of Firmware <<<<"
+# Read size and replace white space with vertical bar
+	$(SIZE) $@ | sed -E "s/\s+/ | /g"
+	@echo
+
 	
 # c source
 $(OBJ_DIR)/%.c.o: $(SRC_DIR)/%.c
