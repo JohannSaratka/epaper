@@ -1,5 +1,4 @@
 
-
 # Driver for waveshare e-Paper Module
 
 https://www.waveshare.com/wiki/1.54inch_e-Paper_Module
@@ -29,9 +28,13 @@ run
 
 ## Code Size 
    
-|text | data | bss | dec | hex | languague  | optimization | 
-|--|--|--|--|--|--|--|
-|2800 | 4 | 26 | 2830 | b0e | C | -O0 | 
-|1790 | 4 | 26 | 1820 | 71c | C | -O0 | 
-|2442 | 144 | 12 | 2598 | a26| C++ V0 | -O1 |
+|text | data | bss | dec | hex | languague  | optimization | note|
+|--|--|--|--|--|--|--|--|
+| 2800 | 4 | 26 | 2830 | b0e | C | -O0 | |
+| 1790 | 4 | 26 | 1820 | 71c | C | -O1 | |
+| 1710 | 4 | 26 | 1740 | 6cc | C | -Os | |
+| | | | | | | | |
+| 2442 | 144 | 12 | 2598 | a26| C++ | -O1 | Initial Version |
+| 2330 | 144 | 12 | 2486 | 9b6 | C++ | -Os | |
+| 1782 | 8 | 30 | 1820 | 71c | C++ | -Os | Compiler flags |
 

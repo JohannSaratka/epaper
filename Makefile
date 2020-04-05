@@ -60,12 +60,14 @@ OBJECTS := $(SOURCES:$(SRC_DIR)/%=$(OBJ_DIR)/%.o)
 # Add or subtract whatever MSPGCC flags you want. There are plenty more
 #######################################################################################
 ifeq ($(PROFILE),release)
-OPT=-O1
+OPT=-Os
 else
 OPT=-g3 -gdwarf-2 -O0
 endif
 CFLAGS   = -mmcu=$(MCU) $(OPT) -Wall -Wextra -Werror -std=c11
 CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib $(OPT) -Wall -Wextra -Werror -std=c++11
+CXXFLAGS += -fno-exceptions -fno-non-call-exceptions -fno-rtti -fno-use-cxa-atexit 
+CXXFLAGS += -fno-common -ffunction-sections -fdata-sections -finline-small-functions
 CPPFLAGS = $(INCLUDES) #-MMD -MP 
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(BIN_DIR)/$(TARGET).map -L $(GCC_MSP_INC_DIR)
@@ -115,4 +117,9 @@ $(OBJ_DIR)/%.s.o: $(SRC_DIR)/%.s
 .PHONY: clean
 clean:
 	$(RM) $(OUTDIR)
+
+# flash target to device
+.PHONY:flash
+flash:
+	mspdebug rf2500 "prog ./$(BIN_DIR)/$(TARGET).hex"
 
