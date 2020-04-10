@@ -45,7 +45,7 @@ EPD::EPD()
 
 };
 
-void EPD::init(bool useFullUpdate)
+void EPD::init(const bool useFullUpdate) const
 {
 	const uint8_t * lut;
 	if(useFullUpdate)
@@ -101,7 +101,7 @@ void EPD::init(bool useFullUpdate)
  *
  * Often used to awaken the module in deep sleep, \see EPD::sleep().
  */
-void EPD::reset()
+void EPD::reset() const
 {
 	bcm_delay(200);
 	gpio_setOutputLow(PORT2, RST_PIN);
@@ -113,8 +113,8 @@ void EPD::reset()
 /** Specify the memory area for data R/W
  * SetMemoryArea
  */
-void EPD::setWindow(uint16_t Xstart, uint16_t Ystart,
-		uint16_t Xend, uint16_t Yend)
+void EPD::setWindow(const uint16_t Xstart, const uint16_t Ystart,
+		const uint16_t Xend, const uint16_t Yend) const
 {
     sendCommand(0x44); // SET_RAM_X_ADDRESS_START_END_POSITION
     sendData((Xstart >> 3) & 0xFF);
@@ -129,7 +129,7 @@ void EPD::setWindow(uint16_t Xstart, uint16_t Ystart,
 /** Specify the start point for data R/W
  *  SetMemoryPointer
  */
-void EPD::setCursor(uint16_t Xstart, uint16_t Ystart)
+void EPD::setCursor(const uint16_t Xstart, const uint16_t Ystart) const
 {
     sendCommand(0x4E); // SET_RAM_X_ADDRESS_COUNTER
     sendData((Xstart >> 3) & 0xFF);
@@ -144,7 +144,7 @@ void EPD::setCursor(uint16_t Xstart, uint16_t Ystart)
  * This function will switch the active area while
  * EPD::display and EPD::clear always operate on the other memory area.
 */
-void EPD::turnOnDisplay()
+void EPD::turnOnDisplay() const
 {
     sendCommand(0x22); // DISPLAY_UPDATE_CONTROL_2
     sendData(0xC4);
@@ -160,7 +160,7 @@ void EPD::turnOnDisplay()
  *
  * This will update the display.
  */
-void EPD::clear()
+void EPD::clear()const
 {
     EPD::setWindow(0, 0, DISPLAY_WIDTH-1, DISPLAY_HEIGHT-1);
 
@@ -178,7 +178,7 @@ void EPD::clear()
  * This will update the display with data from image pointer.
  * It will read DISPLAY_WIDTH * DISPLAY_HEIGHT bytes of data.
  */
-void EPD::display(uint8_t *image)
+void EPD::display(uint8_t *const image) const
 {
 	if(image == nullptr)
 	{
@@ -200,8 +200,9 @@ void EPD::display(uint8_t *image)
  * It will read image_width * image_height bytes of data and
  * display it at x/y coordinates.
  */
-void EPD::displayImage(uint8_t *image_buffer, uint16_t x, uint16_t y,
-	    uint16_t image_width, uint16_t image_height)
+void EPD::displayImage(const uint8_t *const image_buffer,
+		uint16_t x, const uint16_t y,
+		uint16_t image_width, const uint16_t image_height) const
 {
     int x_end;
     int y_end;
@@ -250,7 +251,7 @@ void EPD::displayImage(uint8_t *image_buffer, uint16_t x, uint16_t y,
  * return to standby by hardware reset. You can use EPD::init()
  * to awaken
  */
-void EPD::sleep()
+void EPD::sleep() const
 {
     sendCommand(0x10);
     sendData(0x01);
@@ -261,7 +262,7 @@ void EPD::sleep()
 /**
  * Basic function for sending commands
  */
-void EPD::sendCommand(uint8_t val)
+void EPD::sendCommand(const uint8_t val) const
 {
 	gpio_setOutputLow(PORT2, DC_PIN);
 	usci_sendSPI(val);
@@ -270,7 +271,7 @@ void EPD::sendCommand(uint8_t val)
 /**
  *  Basic function for sending data
  */
-void EPD::sendData(uint8_t val)
+void EPD::sendData(const uint8_t val) const
 {
 	gpio_setOutputHigh(PORT2, DC_PIN);
 	usci_sendSPI(val);
