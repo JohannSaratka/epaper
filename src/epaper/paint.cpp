@@ -16,27 +16,26 @@
 
 #include "tile.h"
 
+
 /** Init paint object
  *
  * \param width The width of the picture
  * \param height The height of the picture
  */
-void Paint::init(EPD *pEpd, uint16_t Width, uint16_t Height)
+Paint::Paint(const EPD &epd_ref, const uint16_t Width, const uint16_t Height):
+	epd(epd_ref),
+	WidthMemory(Width),
+	HeightMemory( Height),
+	WidthByte((Width % 8 == 0) ? (Width / 8) : (Width / 8 + 1)),
+	HeightByte(Height),
+	tileBuffer(getTileBufferAddr())
 {
-	tileBuffer = getTileBufferAddr();
-	
-	WidthMemory = Width;
-	HeightMemory = Height;
 
-	WidthByte = (Width % 8 == 0) ? (Width / 8) : (Width / 8 + 1);
-	HeightByte = Height;
-
-	epd = pEpd;
 }
 
-void Paint::displayTile(uint16_t x, uint16_t y)
+void Paint::displayTile(uint16_t x, uint16_t y) const
 {
-	epd->displayImage(tileBuffer, x, y, TILE_WIDTH, TILE_HEIGHT);
+	epd.displayImage(tileBuffer, x, y, TILE_WIDTH, TILE_HEIGHT);
 }
 /* TODO PAINT:
  * properties: rotate, mirror, scale, color

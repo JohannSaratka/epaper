@@ -26,16 +26,15 @@
 class Paint
 {
 public:
-    EPD *epd;
-    uint8_t *tileBuffer;
-    uint16_t Width;
-    uint16_t Height;
-    uint16_t WidthMemory;
-    uint16_t HeightMemory;
-    uint16_t WidthByte;
-    uint16_t HeightByte;
-    void init(EPD *epd, uint16_t Width, uint16_t Height);
-    void displayTile(uint16_t x, uint16_t y);
+	Paint(const EPD &epd_ref, const uint16_t Width, const uint16_t Height);
+    void displayTile(uint16_t x, uint16_t y) const;
+private:
+    const EPD &epd;
+    const uint16_t WidthMemory;
+    const uint16_t HeightMemory;
+    const uint16_t WidthByte;
+    const uint16_t HeightByte;
+    const uint8_t *tileBuffer;
 };
 
 #endif

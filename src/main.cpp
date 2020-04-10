@@ -24,8 +24,11 @@ void portInit()
 	gpio_setDirectionOutput(PORT1, LED1);
 	gpio_setOutputLow(PORT1, LED1);
 }
-Paint paint;
-EPD epd;
+
+namespace{
+	const EPD epd{};
+	const Paint paint{epd, DISPLAY_WIDTH, DISPLAY_HEIGHT};
+}
 
 int main(void)
 {
@@ -37,11 +40,10 @@ int main(void)
 
 
 	epd.init(true);
+	// clear active frame and frame buffer
 	epd.clear();
 	epd.clear();
 
-
-	paint.init(&epd, DISPLAY_WIDTH, DISPLAY_HEIGHT);
 	tile_clear(WHITE);
 
 	uint16_t i;
@@ -51,7 +53,7 @@ int main(void)
 		tile_setPixel(i, 0, BLACK);
 		tile_setPixel(i, i, BLACK);
 	}
-	for(i = 0;i < 200; i += 16)
+	for(i = 0;i < 200; i += 2*16)
 	{
 		paint.displayTile(0,i);
 		paint.displayTile(i,0);
