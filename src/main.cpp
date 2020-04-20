@@ -4,9 +4,8 @@
  *  Created on: 22.02.2020
  *      Author: johann
  */
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <msp430.h>
 
 #include "hal.h"
