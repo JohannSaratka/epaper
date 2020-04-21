@@ -31,7 +31,7 @@ namespace{
 
 int main(void)
 {
-	wdt_stop();
+	hal::wdt.hold();
 	// Set frequency
 	bcm_setDCOFrequency();
 	portInit();
