@@ -17,14 +17,16 @@
 
 namespace hal
 {
-    WDT_Regs &wdt = *reinterpret_cast<WDT_Regs*>(WDTCTL);
+    WDT_Regs &wdt = *reinterpret_cast<WDT_Regs*>((uint16_t *)&WDTCTL);
 }
 
 
 void WDT_Regs::hold()
 {
     // Set Hold bit
-    WDTCTL |= WDTPW + WDTHOLD;
+    uint16_t newWDTStatus = (WDTCTL & 0x00FF) | WDTHOLD;
+
+    WDTCTL = WDTPW + newWDTStatus;
 }
 
 void WDT_Regs::start()
