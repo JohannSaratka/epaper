@@ -68,6 +68,7 @@ CFLAGS   = -mmcu=$(MCU) $(OPT) -Wall -Wextra -Werror -std=c11
 CXXFLAGS = -mmcu=$(MCU) -nostartfiles -nostdlib $(OPT) -Wall -Wextra -Werror -std=c++11
 CXXFLAGS += -fno-exceptions -fno-non-call-exceptions -fno-rtti -fno-use-cxa-atexit 
 CXXFLAGS += -fno-common -ffunction-sections -fdata-sections -finline-small-functions
+CXXFLAGS += -Wno-strict-aliasing
 CPPFLAGS = $(INCLUDES) #-MMD -MP 
 ASFLAGS  = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
 LDFLAGS  = -mmcu=$(MCU) -Wl,-Map=$(BIN_DIR)/$(TARGET).map -L $(GCC_MSP_INC_DIR)
