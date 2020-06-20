@@ -201,7 +201,7 @@ void EPD::display(uint8_t *const image) const
  * display it at x/y coordinates.
  */
 void EPD::displayImage(const uint8_t *const image_buffer,
-		uint16_t x, const uint16_t y,
+		const uint16_t x, const uint16_t y,
 		uint16_t image_width, const uint16_t image_height) const
 {
     int x_end;
@@ -212,16 +212,16 @@ void EPD::displayImage(const uint8_t *const image_buffer,
         return;
     }
     /* x point must be the multiple of 8 or the last 3 bits will be ignored */
-    x &= 0xF8;
+    uint16_t x_base = x & 0xF8;
     image_width &= 0xF8;
 
-    if (x + image_width >= DISPLAY_WIDTH)
+    if (x_base + image_width >= DISPLAY_WIDTH)
     {
         x_end = DISPLAY_WIDTH - 1;
     }
     else
     {
-        x_end = x + image_width - 1;
+        x_end = x_base + image_width - 1;
     }
     if (y + image_height >= DISPLAY_HEIGHT)
     {
@@ -231,17 +231,29 @@ void EPD::displayImage(const uint8_t *const image_buffer,
     {
         y_end = y + image_height - 1;
     }
-    EPD::setWindow(x, y, x_end, y_end);
-    EPD::setCursor(x, y);
+    setWindow(x_base, y, x_end, y_end);
+    setCursor(x_base, y);
     sendCommand(0x24);
     /* send the tile data */
     for (uint16_t j = 0; j < y_end - y + 1; j++)
     {
-        for (uint16_t i = 0; i < (x_end - x + 1) / 8; i++)
+        for (uint16_t i = 0; i < (x_end - x_base + 1) / 8; i++)
         {
             sendData(image_buffer[i + j * (image_width / 8)]);
         }
     }
+}
+
+void EPD::setByte(const uint16_t x, const uint16_t y, const uint8_t value) const
+{
+    uint16_t x_base = x & 0xF8;
+
+    setWindow(x_base, y, x_base + 1, y + 1);
+    setCursor(x_base, y);
+    sendCommand(0x24);
+    /* send the tile data */
+    sendData(value);
+
 }
 
 /** Enter deep sleep

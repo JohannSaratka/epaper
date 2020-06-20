@@ -59,21 +59,15 @@ int main(void)
 		paint.displayTile(i,i);
 	}
 	epd.turnOnDisplay();
-	bcm_delay(3000);
+	bcm_delay(1000);
 
-//	epd_display((uint8_t *)gImage_1in54);
-//	bcm_delay(2000);
-#if 0   // Drawing on the image
-	//1.Select Image
-	Paint_SelectImage(BlackImage);
-	Paint_Clear(WHITE);
 
-	// 2.Drawing on the image
-	Paint_DrawPoint(5, 10, BLACK, DOT_PIXEL_1X1, DOT_STYLE_DFT);
-	Paint_DrawPoint(5, 25, BLACK, DOT_PIXEL_2X2, DOT_STYLE_DFT);
-	Paint_DrawPoint(5, 40, BLACK, DOT_PIXEL_3X3, DOT_STYLE_DFT);
-	Paint_DrawPoint(5, 55, BLACK, DOT_PIXEL_4X4, DOT_STYLE_DFT);
-
+	// 2. Drawing to the
+	paint.drawPoint(5, 10, BLACK, Paint::DotPixel::DP1x1, Paint::DotStyle::Fill_Around);
+	paint.drawPoint(5, 25, BLACK, Paint::DotPixel::DP2x2, Paint::DotStyle::Fill_Around);
+	paint.drawPoint(5, 40, BLACK, Paint::DotPixel::DP3x3, Paint::DotStyle::Fill_Around);
+	paint.drawPoint(5, 55, BLACK, Paint::DotPixel::DP4x4, Paint::DotStyle::Fill_Around);
+#if 0
 	Paint_DrawLine(20, 10, 70, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
 	Paint_DrawLine(70, 10, 20, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
 	Paint_DrawLine(170, 15, 170, 55, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
@@ -93,6 +87,8 @@ int main(void)
 	EPD_1IN54_Display(BlackImage);
 	DEV_Delay_ms(2000);
 #endif
+	epd.turnOnDisplay();
+	bcm_delay(3000);
 
 #if 0   //Partial refresh, example shows time
 	epd_init(false);
@@ -134,8 +130,6 @@ int main(void)
 
 	epd_sleep();
 #endif
-//	free(BlackImage);
-//	BlackImage = NULL;
 
 	while(1)
 	{

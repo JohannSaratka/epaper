@@ -25,8 +25,9 @@ public:
 	void clear()const;
 	void display(uint8_t *const image)const;
 	void displayImage(const uint8_t *const image_buffer,
-			uint16_t x, const uint16_t y,
+			const uint16_t x, const uint16_t y,
 			uint16_t image_width, const uint16_t image_height) const;
+	void setByte(const uint16_t x, const uint16_t y, const uint8_t value) const;
 	void turnOnDisplay()const;
 	void sleep()const;
 
