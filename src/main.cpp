@@ -43,6 +43,7 @@ int main(void)
 	epd.clear();
 	epd.clear();
 
+#if TILE_SAMPLE
 	tile_clear(WHITE);
 
 	uint16_t i;
@@ -60,21 +61,22 @@ int main(void)
 	}
 	epd.turnOnDisplay();
 	bcm_delay(1000);
-
+#endif
 
 	// 2. Drawing to the
 	paint.drawPoint(5, 10, BLACK, Paint::DotPixel::DP1x1, Paint::DotStyle::Fill_Around);
 	paint.drawPoint(5, 25, BLACK, Paint::DotPixel::DP2x2, Paint::DotStyle::Fill_Around);
 	paint.drawPoint(5, 40, BLACK, Paint::DotPixel::DP3x3, Paint::DotStyle::Fill_Around);
-	paint.drawPoint(5, 55, BLACK, Paint::DotPixel::DP4x4, Paint::DotStyle::Fill_Around);
-#if 0
-	Paint_DrawLine(20, 10, 70, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-	Paint_DrawLine(70, 10, 20, 60, BLACK, DOT_PIXEL_1X1, LINE_STYLE_SOLID);
-	Paint_DrawLine(170, 15, 170, 55, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
-	Paint_DrawLine(150, 35, 190, 35, BLACK, DOT_PIXEL_1X1, LINE_STYLE_DOTTED);
+	paint.drawPoint(5, 55, BLACK, Paint::DotPixel::DP5x5, Paint::DotStyle::Fill_Around);
 
-	Paint_DrawRectangle(20, 10, 70, 60, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
-	Paint_DrawRectangle(85, 10, 130, 60, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
+	paint.drawLine(20, 10, 70, 60, BLACK, Paint::DotPixel::DP2x2, Paint::LineStyle::Solid);
+	paint.drawLine(70, 10, 20, 60, BLACK, Paint::DotPixel::DP3x3, Paint::LineStyle::Dotted);
+	paint.drawLine(170, 15, 170, 55, BLACK, Paint::DotPixel::DP2x2, Paint::LineStyle::Dotted);
+	paint.drawLine(150, 35, 190, 35, BLACK, Paint::DotPixel::DP1x1, Paint::LineStyle::Solid);
+
+#if 0
+	paint.drawRectangle(20, 10, 70, 60, BLACK, Paint::DotPixel::DP1x1, Paint::GraphicFillStyle::Empty);
+	paint.drawRectangle(85, 10, 130, 60, BLACK, Paint::DotPixel::DP1x1, Paint::GraphicFillStyle::Full);
 
 	Paint_DrawCircle(170, 35, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
 	Paint_DrawCircle(170, 85, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);

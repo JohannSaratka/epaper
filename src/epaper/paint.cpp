@@ -23,12 +23,12 @@
  * \param height The height of the picture
  */
 Paint::Paint(const EPD &epd_ref, const uint16_t Width, const uint16_t Height):
-	epd(epd_ref),
-	WidthMemory(Width),
-	HeightMemory( Height),
-	WidthByte((Width % 8 == 0) ? (Width / 8) : (Width / 8 + 1)),
-	HeightByte(Height),
-	tileBuffer(getTileBufferAddr())
+epd(epd_ref),
+WidthMemory(Width),
+HeightMemory( Height),
+WidthByte((Width % 8 == 0) ? (Width / 8) : (Width / 8 + 1)),
+HeightByte(Height),
+tileBuffer(getTileBufferAddr())
 {
 }
 
@@ -41,82 +41,154 @@ void Paint::displayTile(uint16_t x, uint16_t y) const
 void Paint_Clear(uint16_t Color);
 
 void Paint_ClearWindows(uint16_t Xstart, uint16_t Ystart, uint16_t Xend, uint16_t Yend, uint16_t Color);
-*/
+ */
 void Paint::setPixel(const uint16_t x, const uint16_t y, const uint16_t color) const
 {
-    static uint8_t lastXPos = 0;
-    static uint8_t lastXVal = WHITE;
-    if (x > WidthMemory || y > HeightMemory)
-    {
-        return;
-    }
+	static uint8_t lastXPos = 0;
+	static uint8_t lastYPos = 0;
+	static uint8_t lastXVal = IMAGE_BACKGROUND;
 
-    if((x & 0xF8) != lastXPos)
-    {
-        lastXVal = WHITE;
-        lastXPos = x & 0xF8;
-    }
+	if (x > WidthMemory || y > HeightMemory)
+	{
+		return;
+	}
 
-    if (color == BLACK)
-    {
-        lastXVal &= ~(0x80 >> (x & 0x07));
-    }
-    else
-    {
-        lastXVal |= (0x80 >> (x & 0x07));
-    }
+	if(((x & 0xF8) != lastXPos)||(y != lastYPos))
+	{
+		lastXVal = IMAGE_BACKGROUND;
+		lastXPos = x & 0xF8;
+		lastYPos = y;
+	}
 
-    epd.setByte(x, y, lastXVal);
+	if (color == BLACK)
+	{
+		lastXVal &= ~(0x80 >> (x & 0x07));
+	}
+	else
+	{
+		lastXVal |= (0x80 >> (x & 0x07));
+	}
+
+	epd.setByte(x, y, lastXVal);
 }
 
-void Paint::drawPoint(uint16_t Xpoint, uint16_t Ypoint, uint16_t Color,
-		DotPixel Dot_Pixel, DotStyle Dot_Style) const
+void Paint::drawPoint(const uint16_t x, const uint16_t y, const uint16_t color,
+	const DotPixel dotPixel, const DotStyle dotStyle) const
 {
-    if (Xpoint > WidthMemory || Ypoint > HeightMemory) {
-//        Debug("Paint_DrawPoint Input exceeds the normal display range\r\n");
-//        printf("Xpoint = %d , WidthMemory = %d  \r\n ", Xpoint, WidthMemory);
-//        printf("Ypoint = %d , HeightMemory = %d  \r\n ", Ypoint, HeightMemory);
-        return;
-    }
+	if (x > WidthMemory || y > HeightMemory) {
+		//        Debug("Input exceeds the normal display range\r\n");
+		//        printf("x = %d , WidthMemory = %d  \r\n ", x, WidthMemory);
+		//        printf("y = %d , HeightMemory = %d  \r\n ", y, HeightMemory);
+		return;
+	}
 
-    int16_t XDir_Num , YDir_Num;
-    int16_t sizePixel = static_cast<uint16_t>(Dot_Pixel);
-    if (Dot_Style == DotStyle::Fill_Around)
-    {
-        for (XDir_Num = 0; XDir_Num < 2 * sizePixel - 1; XDir_Num++)
-        {
-            for (YDir_Num = 0; YDir_Num < 2 * sizePixel - 1; YDir_Num++)
-            {
-                if( ((int16_t)(Xpoint + XDir_Num - sizePixel) < 0)
-                    || ((int16_t)(Ypoint + YDir_Num - sizePixel) < 0))
-                {
-                    break;
-                }
-                // printf("x = %d, y = %d\r\n", Xpoint + XDir_Num - Dot_Pixel, Ypoint + YDir_Num - Dot_Pixel);
-                setPixel(
-                    Xpoint + XDir_Num - sizePixel,
-                    Ypoint + YDir_Num - sizePixel,
-                    Color);
-            }
-        }
-    }
-    else
-    {
-        for (XDir_Num = 0; XDir_Num <  sizePixel; XDir_Num++)
-        {
-            for (YDir_Num = 0; YDir_Num <  sizePixel; YDir_Num++)
-            {
-                setPixel(
-                    Xpoint + XDir_Num - 1,
-                    Ypoint + YDir_Num - 1,
-                    Color);
-            }
-        }
-    }
+	int16_t sizePixel = static_cast<uint16_t>(dotPixel);
+	if (dotStyle == DotStyle::Fill_Around)
+	{
+		for (int16_t yDirNum = 0; yDirNum < 2 * sizePixel - 1; yDirNum++)
+		{
+			for (int16_t xDirNum = 0; xDirNum < 2 * sizePixel - 1; xDirNum++)
+			{
+				if( ((int16_t)(x + xDirNum - sizePixel) < 0)
+					|| ((int16_t)(y + yDirNum - sizePixel) < 0))
+				{
+					break;
+				}
+				// printf("x = %d, y = %d\r\n", Xpoint + XDir_Num - Dot_Pixel, Ypoint + YDir_Num - Dot_Pixel);
+				setPixel(
+					x + xDirNum - sizePixel,
+					y + yDirNum - sizePixel,
+					color);
+			}
+		}
+	}
+	else if (dotStyle == DotStyle::Fill_Bar)
+	{
+		for (int16_t xDirNum = 0; xDirNum <  sizePixel; xDirNum++)
+		{
+			setPixel(
+				x + xDirNum - 1,
+				y - 1,
+				color);
+		}
+	}
+	else
+	{
+		for (int16_t yDirNum = 0; yDirNum <  sizePixel; yDirNum++)
+		{
+			for (int16_t xDirNum = 0; xDirNum <  sizePixel; xDirNum++)
+			{
+				setPixel(
+					x + xDirNum - 1,
+					y + yDirNum - 1,
+					color);
+			}
+		}
+	}
 
 }
+
+void Paint::drawLine(const uint16_t xStart, const uint16_t yStart,
+	const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
+	const DotPixel lineWidth, const LineStyle lineStyle) const
+{
+	if ((xStart > WidthMemory) || (yStart > HeightMemory)||
+		(xEnd > WidthMemory) || (yEnd > HeightMemory))
+	{
+		//Debug("Input exceeds the normal display range\r\n");
+		return;
+	}
+
+	uint16_t x = xStart;
+	uint16_t y = yStart;
+	const int16_t dx = (int16_t)xEnd - (int16_t)xStart >= 0 ? xEnd - xStart : xStart - xEnd;
+	const int16_t dy = (int16_t)yEnd - (int16_t)yStart <= 0 ? yEnd - yStart : yStart - yEnd;
+
+	// Increment direction, 1 is positive, -1 is counter;
+	const int16_t xInc = xStart < xEnd ? 1 : -1;
+	const int16_t yInc = yStart < yEnd ? 1 : -1;
+
+	//Cumulative error
+	int16_t err = dx + dy;
+	int8_t lenghtDotted = 0;
+
+	for (;;)
+	{
+		lenghtDotted++;
+		//Painted dotted line, 2 point is really virtual
+		if ((lineStyle == LineStyle::Dotted) && (lenghtDotted % 3 == 0))
+		{
+			//Debug("LINE_DOTTED\r\n");
+			drawPoint(x, y, IMAGE_BACKGROUND, lineWidth, DotStyle::Fill_Bar);
+			lenghtDotted = 0;
+		}
+		else
+		{
+			drawPoint(x, y, color, lineWidth, DotStyle::Fill_Bar);
+		}
+
+		if (2 * err >= dy)
+		{
+			if (x == xEnd)
+			{
+				break;
+			}
+			err += dy;
+			x += xInc;
+		}
+		if (2 * err <= dx)
+		{
+			if (y == yEnd)
+			{
+				break;
+			}
+			err += dx;
+			y += yInc;
+		}
+	}
+}
+
 /*
-Paint_DrawLine(..., DOT_PIXEL Line_width, LINE_STYLE Line_Style)
 
 Paint_DrawRectangle(..., DOT_PIXEL Line_width, DRAW_FILL Draw_Fill)
 
