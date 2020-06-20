@@ -32,6 +32,10 @@ tileBuffer(getTileBufferAddr())
 {
 }
 
+bool Paint::inDisplayRange(const uint16_t x, const uint16_t y) const
+{
+	return ((x <= WidthMemory) && (y <= HeightMemory));
+}
 void Paint::displayTile(uint16_t x, uint16_t y) const
 {
 	epd.displayImage(tileBuffer, x, y, TILE_WIDTH, TILE_HEIGHT);
@@ -48,7 +52,7 @@ void Paint::setPixel(const uint16_t x, const uint16_t y, const uint16_t color) c
 	static uint8_t lastYPos = 0;
 	static uint8_t lastXVal = IMAGE_BACKGROUND;
 
-	if (x > WidthMemory || y > HeightMemory)
+	if (!inDisplayRange(x, y))
 	{
 		return;
 	}
@@ -75,7 +79,7 @@ void Paint::setPixel(const uint16_t x, const uint16_t y, const uint16_t color) c
 void Paint::drawPoint(const uint16_t x, const uint16_t y, const uint16_t color,
 	const DotPixel dotPixel, const DotStyle dotStyle) const
 {
-	if (x > WidthMemory || y > HeightMemory) {
+	if (!inDisplayRange(x, y)) {
 		//        Debug("Input exceeds the normal display range\r\n");
 		//        printf("x = %d , WidthMemory = %d  \r\n ", x, WidthMemory);
 		//        printf("y = %d , HeightMemory = %d  \r\n ", y, HeightMemory);
@@ -132,8 +136,8 @@ void Paint::drawLine(const uint16_t xStart, const uint16_t yStart,
 	const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
 	const DotPixel lineWidth, const LineStyle lineStyle) const
 {
-	if ((xStart > WidthMemory) || (yStart > HeightMemory)||
-		(xEnd > WidthMemory) || (yEnd > HeightMemory))
+	if ((!inDisplayRange(xStart, yStart)) ||
+		(!inDisplayRange(xEnd,yEnd)))
 	{
 		//Debug("Input exceeds the normal display range\r\n");
 		return;
@@ -192,8 +196,8 @@ void Paint::drawRectangle(const uint16_t  xStart, const uint16_t  yStart,
 	const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
 	const DotPixel lineWidth, const GraphicFillStyle drawFill) const
 {
-    if (xStart > WidthMemory || yStart > HeightMemory ||
-        xEnd > WidthMemory || yEnd > HeightMemory)
+    if ((!inDisplayRange(xStart, yStart)) ||
+		(!inDisplayRange(xEnd,yEnd)))
     {
         //Debug("Input exceeds the normal display range\r\n");
         return;

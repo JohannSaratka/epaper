@@ -80,7 +80,7 @@ private:
 	const uint16_t HeightByte;
 	const uint8_t *tileBuffer;//TODO tile buffer should be input to specific function not member
 
-
+	bool inDisplayRange(const uint16_t x, const uint16_t y) const;
 	void setPixel(const uint16_t x, const uint16_t y, const uint16_t color) const;
 };
 
