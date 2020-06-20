@@ -74,10 +74,11 @@ int main(void)
 	paint.drawLine(170, 15, 170, 55, BLACK, Paint::DotPixel::DP2x2, Paint::LineStyle::Dotted);
 	paint.drawLine(150, 35, 190, 35, BLACK, Paint::DotPixel::DP1x1, Paint::LineStyle::Solid);
 
-#if 0
+
 	paint.drawRectangle(20, 10, 70, 60, BLACK, Paint::DotPixel::DP1x1, Paint::GraphicFillStyle::Empty);
 	paint.drawRectangle(85, 10, 130, 60, BLACK, Paint::DotPixel::DP1x1, Paint::GraphicFillStyle::Full);
 
+#if 0
 	Paint_DrawCircle(170, 35, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_EMPTY);
 	Paint_DrawCircle(170, 85, 20, BLACK, DOT_PIXEL_1X1, DRAW_FILL_FULL);
 	Paint_DrawString_EN(5, 85, "waveshare", &Font20, BLACK, WHITE);

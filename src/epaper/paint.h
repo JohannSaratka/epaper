@@ -68,6 +68,9 @@ public:
 	void drawLine(const uint16_t xStart, const uint16_t yStart,
 		const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
 		const DotPixel lineWidth, const LineStyle lineStyle) const;
+	void drawRectangle(const uint16_t  xStart, const uint16_t  yStart,
+		const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
+		const DotPixel lineWidth, const GraphicFillStyle drawFill) const;
 
 private:
 	const EPD &epd;

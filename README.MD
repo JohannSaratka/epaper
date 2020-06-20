@@ -38,3 +38,6 @@ run
 | 2330 | 144 | 12 | 2486 | 9b6 | C++ | -Os | |
 | 1782 | 8 | 30 | 1820 | 71c | C++ | -Os | Compiler flags |
 
+## TODO
+
+- Horizontal lines with line weight > 1px is broken because drawLine uses drawPoint which will overwrite data in frame buffer if points overlap

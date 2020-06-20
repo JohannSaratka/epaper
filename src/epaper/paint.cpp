@@ -188,10 +188,32 @@ void Paint::drawLine(const uint16_t xStart, const uint16_t yStart,
 	}
 }
 
+void Paint::drawRectangle(const uint16_t  xStart, const uint16_t  yStart,
+	const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
+	const DotPixel lineWidth, const GraphicFillStyle drawFill) const
+{
+    if (xStart > WidthMemory || yStart > HeightMemory ||
+        xEnd > WidthMemory || yEnd > HeightMemory)
+    {
+        //Debug("Input exceeds the normal display range\r\n");
+        return;
+    }
+
+    if (drawFill== GraphicFillStyle::Full)
+    {
+        for(uint16_t y = yStart; y < yEnd; y++)
+        {
+            drawLine(xStart, y, xEnd, y, color , lineWidth, LineStyle::Solid);
+        }
+    } else {
+        drawLine(xStart, yStart, xStart, yEnd, color, lineWidth, LineStyle::Solid);
+        drawLine(xEnd, yEnd, xEnd, yStart, color, lineWidth, LineStyle::Solid);
+        drawLine(xStart, yStart, xEnd, yStart, color, lineWidth, LineStyle::Solid);
+        drawLine(xEnd, yEnd, xStart, yEnd, color, lineWidth, LineStyle::Solid);
+    }
+}
+
 /*
-
-Paint_DrawRectangle(..., DOT_PIXEL Line_width, DRAW_FILL Draw_Fill)
-
 Paint_DrawCircle(..., DOT_PIXEL Line_width, DRAW_FILL Draw_Fill)
 
 void Paint_DrawChar(uint16_t Xpoint, uint16_t Ypoint, const char Acsii_Char,
