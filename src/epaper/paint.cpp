@@ -192,7 +192,7 @@ void Paint::drawLine(const uint16_t xStart, const uint16_t yStart,
 	}
 }
 
-void Paint::drawRectangle(const uint16_t  xStart, const uint16_t  yStart,
+void Paint::drawRectangle(const uint16_t xStart, const uint16_t yStart,
 	const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
 	const DotPixel lineWidth, const GraphicFillStyle drawFill) const
 {
@@ -217,9 +217,115 @@ void Paint::drawRectangle(const uint16_t  xStart, const uint16_t  yStart,
     }
 }
 
-/*
-Paint_DrawCircle(..., DOT_PIXEL Line_width, DRAW_FILL Draw_Fill)
+void Paint::drawCircle(const uint16_t xCenter, const uint16_t yCenter,
+	const uint16_t radius, const uint16_t color,
+	const DotPixel lineWidth, const GraphicFillStyle drawFill) const
+{
+    if (!inDisplayRange(xCenter, yCenter)) {
+       // Debug("Input exceeds the normal display range\r\n");
+        return;
+    }
 
+    if (drawFill == GraphicFillStyle::Full)
+	{
+    	drawSolidCircle(xCenter, yCenter, radius, color);
+	}
+	else
+	{
+		drawEmptyCircle(xCenter, yCenter, radius, color, lineWidth);
+	}
+}
+
+void Paint::drawSolidCircle(const uint16_t xCenter, const uint16_t yCenter,
+	const uint16_t radius, const uint16_t color) const
+{
+    // Draw a circle from(0, R) as a starting point
+    int16_t xCurrent = 0;
+	int16_t yCurrent = radius;
+
+    // Cumulative error
+    int16_t err = 3 - (2 * radius);
+
+	while (xCurrent <= yCurrent )
+	{
+		drawLine(xCenter + xCurrent, yCenter + yCurrent,
+			xCenter - xCurrent, yCenter + yCurrent,
+			color, DotPixel::DP1x1, LineStyle::Solid);
+		drawLine(xCenter + yCurrent, yCenter + xCurrent,
+			xCenter - yCurrent, yCenter + xCurrent,
+			color, DotPixel::DP1x1, LineStyle::Solid);
+		drawLine(xCenter + yCurrent, yCenter - xCurrent,
+			xCenter - yCurrent, yCenter - xCurrent,
+			color, DotPixel::DP1x1, LineStyle::Solid);
+		drawLine(xCenter + xCurrent, yCenter - yCurrent,
+			xCenter - xCurrent, yCenter - yCurrent,
+			color, DotPixel::DP1x1, LineStyle::Solid);
+		if (err < 0 )
+		{
+			err += 4 * xCurrent + 6;
+		}
+		else
+		{
+			err += 10 + 4 * (xCurrent - yCurrent );
+			yCurrent --;
+		}
+		xCurrent ++;
+	}
+}
+
+void Paint::drawEmptyCircle(const uint16_t xCenter, const uint16_t yCenter,
+	const uint16_t radius, const uint16_t color, const DotPixel lineWidth) const
+{
+	/* function for drawing single segment with bresenham algorithm at once.
+	 * We can't draw all segments at the same time because jumping between the different
+	 * coordinates will reset the memory of the last byte written to the frame buffer.
+	 */
+	auto drawSegment =
+		[=](bool swapXY, int16_t signX, int16_t signY)
+	{
+		// starting point
+		int16_t x = 0;
+		int16_t y = radius;
+
+		// Cumulative error
+		int16_t err = 3 - (2 * radius);
+
+		while (x <= y)
+		{
+			// Draw a circle segment (1/8)
+			if (swapXY)
+			{
+				drawPoint(xCenter + signX * y, yCenter + signY * x,
+					color, lineWidth, DotStyle::Fill_Around);
+			}
+			else
+			{
+				drawPoint(xCenter + signX * x, yCenter + signY * y,
+					color, lineWidth, DotStyle::Fill_Around);
+			}
+			if (err < 0)
+			{
+				err += 4 * x + 6;
+			}
+			else
+			{
+				err += 10 + 4 * (x - y);
+				y--;
+			}
+			x++;
+		}
+	};
+	// Draw a circle from segments
+	drawSegment(false, +1, +1);
+	drawSegment(false, -1, +1);
+	drawSegment(false, +1, -1);
+	drawSegment(false, -1, -1);
+	drawSegment(true, +1, +1);
+	drawSegment(true, -1, +1);
+	drawSegment(true, +1, -1);
+	drawSegment(true, -1, -1);
+}
+/*
 void Paint_DrawChar(uint16_t Xpoint, uint16_t Ypoint, const char Acsii_Char,
 		sFONT* Font, uint16_t Color_Foreground, uint16_t Color_Background)
 

@@ -41,3 +41,4 @@ run
 ## TODO
 
 - Horizontal lines with line weight > 1px is broken because drawLine uses drawPoint which will overwrite data in frame buffer if points overlap
+- Empty circles can have small missing section as each drawn segment can overwrite frame buffer values of previous section. Drawing circle as lines parallel to x-axis would solve this.  

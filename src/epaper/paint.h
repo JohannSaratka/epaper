@@ -71,6 +71,9 @@ public:
 	void drawRectangle(const uint16_t  xStart, const uint16_t  yStart,
 		const uint16_t xEnd, const uint16_t yEnd, const uint16_t color,
 		const DotPixel lineWidth, const GraphicFillStyle drawFill) const;
+	void drawCircle(const uint16_t X_Center, const uint16_t Y_Center,
+		const uint16_t Radius, const uint16_t Color,
+		const DotPixel lineWidth, const GraphicFillStyle drawFill) const;
 
 private:
 	const EPD &epd;
@@ -82,6 +85,11 @@ private:
 
 	bool inDisplayRange(const uint16_t x, const uint16_t y) const;
 	void setPixel(const uint16_t x, const uint16_t y, const uint16_t color) const;
+	void drawSolidCircle(const uint16_t X_Center, const uint16_t Y_Center,
+		const uint16_t Radius, const uint16_t Color) const;
+	void drawEmptyCircle(const uint16_t xCenter, const uint16_t yCenter,
+		const uint16_t radius, const uint16_t color,
+		const DotPixel lineWidth) const;
 };
 
 #endif
